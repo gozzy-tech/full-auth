@@ -23,25 +23,41 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { UserCreateSchema } from "@/schemas";
 import { FcGoogle } from "react-icons/fc";
+import { useState } from "react";
+import { useRegister } from "@/api/auth";
+import { toast } from "sonner";
+import { LoadingSpinner } from "../custom/loading-spinner";
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof UserCreateSchema>>({
     resolver: zodResolver(UserCreateSchema),
     defaultValues: {
-      firstname: "",
-      lastname: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: z.infer<typeof UserCreateSchema>) => {
+  const { reset } = form;
+
+  const onSubmit = async (data: z.infer<typeof UserCreateSchema>) => {
     console.log(data);
-    // handle submit logic here
+    setSubmitting(true);
+    const response = await useRegister(data);
+    if (response?.status >= 200 && response?.status < 300) {
+      toast.success(response?.data?.message || "Account created successfully!");
+      reset();
+    } else {
+      toast.error(response?.message || "Registration failed.");
+    }
+
+    setSubmitting(false);
   };
 
   return (
@@ -75,7 +91,7 @@ export function RegisterForm({
               <div className="grid grid-cols-2 gap-2">
                 <FormField
                   control={form.control}
-                  name="firstname"
+                  name="first_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Firstname</FormLabel>
@@ -88,7 +104,7 @@ export function RegisterForm({
                 />
                 <FormField
                   control={form.control}
-                  name="lastname"
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lastname</FormLabel>
@@ -147,8 +163,12 @@ export function RegisterForm({
               />
 
               {/* Submit */}
-              <Button type="submit" className="w-full">
-                Sign up
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <LoadingSpinner message="Creating account..." />
+                ) : (
+                  "Sign up"
+                )}
               </Button>
 
               {/* Link */}

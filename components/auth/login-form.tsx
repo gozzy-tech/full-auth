@@ -25,6 +25,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/schemas";
+import { useState } from "react";
+import { LoadingSpinner } from "../custom/loading-spinner";
+import { toast } from "sonner";
+import { useLogin } from "@/api/auth";
+import { useRouter } from "next/navigation";
+import { saveToken } from "@/utils/auth";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -32,6 +38,8 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -40,9 +48,25 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = (values: LoginFormValues) => {
-    console.log("Login Data:", values);
-    // call your login API here
+  const { reset } = form;
+
+  const onSubmit = async (data: LoginFormValues) => {
+    console.log("Login Data:", data);
+    setSubmitting(true);
+    const response = await useLogin(data);
+    if (response?.status >= 200 && response?.status < 300) {
+      toast.success(response?.data?.message || "Login successful!");
+      reset();
+      if (response?.data?.two_factor_required) {
+        router.push("/verify-2FA");
+      } else {
+        saveToken(response?.data);
+        router.push("/dashboard");
+      }
+    } else {
+      toast.error(response?.message || "Login failed.");
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -106,8 +130,12 @@ export function LoginForm({
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <LoadingSpinner message="signing in..." />
+                ) : (
+                  "Login"
+                )}
               </Button>
 
               <div className="text-center text-sm">

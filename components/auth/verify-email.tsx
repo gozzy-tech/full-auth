@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,8 @@ import { FormSuccess } from "../custom/form-success";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CgSpinner } from "react-icons/cg";
+import { useVerifyEmailToken } from "@/api/auth";
+import Link from "next/link";
 
 export function EmailVerification({
   className,
@@ -23,7 +26,7 @@ export function EmailVerification({
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     setError("");
     setSuccess("");
     if (!token) {
@@ -31,7 +34,18 @@ export function EmailVerification({
       return;
     }
     setLoading(true);
-    // 🔗 Call your API to verify the email here
+    try {
+      const response = await useVerifyEmailToken(token);
+      if (response?.status === 200) {
+        setSuccess(response?.data?.message || "Email verified successfully!");
+      } else {
+        setError(response?.message || "Email verification failed.");
+      }
+    } catch (error) {
+      setError("Something went wrong with the verification.");
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
   useEffect(() => {
@@ -65,9 +79,14 @@ export function EmailVerification({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center w-full">
+          <div className="flex flex-col items-center justify-center w-full gap-3">
             <FormError message={error} />
             <FormSuccess message={success} />
+            <Button asChild>
+              <Link href="/login" className="w-full">
+                Proceed to Login
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

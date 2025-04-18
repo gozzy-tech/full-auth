@@ -13,8 +13,8 @@ export const FormError = ({ message }: FormErrorProps) => {
   return (
     <Alert variant="destructive" className="bg-red-100 border-0">
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>Error</AlertTitle>
-      <AlertDescription>{message}</AlertDescription>
+      <AlertTitle className="font-semibold">Error</AlertTitle>
+      <AlertDescription className="text-red-600">{message}</AlertDescription>
     </Alert>
   );
 };

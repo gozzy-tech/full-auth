@@ -4,8 +4,8 @@ export const RoleEnum = z.enum(["admin", "user"]);
 
 export const UserCreateSchema = z
   .object({
-    firstname: z.string().min(1, "First name is required"),
-    lastname: z.string().min(1, "Last name is required"),
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(6, "Confirm your password"),
@@ -14,6 +14,7 @@ export const UserCreateSchema = z
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });
+  
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -29,6 +30,9 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email"),
 });
 
+export const verify2FASchema = z.object({
+  code: z.string().min(6, "Enter a valid code"),
+});
 
 // Schema for password reset form
 export const resetPasswordSchema = z
@@ -52,6 +56,9 @@ export const UserResponseSchema = z.object({
   role: RoleEnum.default("user"),
 });
 
+export type UserResponseType = z.infer<typeof UserResponseSchema>;
+
+
 export const UserSchema = z.object({
   id: z.string().uuid(),
   first_name: z.string(),
@@ -71,6 +78,8 @@ export const UserSchema = z.object({
   created_at: z.string().datetime(),
 });
 
+export type UserType = z.infer<typeof UserSchema>
+
 export const UserUpdateSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
@@ -83,3 +92,5 @@ export const UserUpdateSchema = z.object({
   bio: z.string().optional().nullable(),
   gender: z.string().optional().nullable(),
 });
+
+export type UserUpdateType = z.infer<typeof UserUpdateSchema>;

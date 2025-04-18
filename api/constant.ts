@@ -1,0 +1,1 @@
+export const COOKIE_NAME = process.env.NEXT_PUBLIC_COOKIE_NAME || "fullauth_token";
