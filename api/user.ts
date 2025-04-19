@@ -2,7 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "react-query";
 import { AxiosinstanceAuth } from "./instance";
 import { UserUpdateType } from "@/schemas";
 
+// -------------------------------------------------
 // get the user profile
+// -------------------------------------------------
 export const useGetUserProfile = () => {
   return useQuery("userProfile", async () => {
     const response = await AxiosinstanceAuth.get("/user/profile");
@@ -10,7 +12,9 @@ export const useGetUserProfile = () => {
   });
 };
 
+// -------------------------------------------------
 // update the user profile
+// -------------------------------------------------
 export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
   return useMutation(

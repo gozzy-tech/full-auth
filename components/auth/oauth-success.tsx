@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useGetOauthtoken } from "@/api/auth";
 import { saveToken } from "@/utils/auth";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { CgSpinner } from "react-icons/cg";
 
 const OauthSuccess = () => {
   const searchParams = useSearchParams();
@@ -48,7 +49,15 @@ const OauthSuccess = () => {
     createOauthUserToken();
   }, [code, router]);
 
-  return null;
+  return (
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96">
+        <CgSpinner className="animate-spin" size={40} />
+        <h4 className="text-2xl font-bold">Logging in...</h4>
+        <p className="mt-2 text-gray-600">Please wait while we log you in.</p>
+      </div>
+    </div>
+  );
 };
 
 export default OauthSuccess;

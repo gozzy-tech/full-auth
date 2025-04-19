@@ -46,7 +46,9 @@ export const Auth = {
   },
 };
 
+// --------------------------------------------------
 // Get user ID from cookies
+// --------------------------------------------------
 export const getUserId = (): string | null => {
   const tokenData = Cookies.get(COOKIE_NAME);
   if (!tokenData) return null;
@@ -60,7 +62,9 @@ export const getUserId = (): string | null => {
   }
 };
 
+// --------------------------------------------------
 // Save token to cookies
+// --------------------------------------------------
 export const saveToken = (data: TokenType) => {
   const { access_token, refresh_token, user } = data;
   const decoded = jwtDecode<{ exp?: number }>(access_token);
@@ -86,12 +90,17 @@ export const saveToken = (data: TokenType) => {
   });
 };
 
+// --------------------------------------------------
 // Remove token from cookies
+// --------------------------------------------------
 export const removeToken = () => {
   Cookies.remove(COOKIE_NAME);
 };
 
+
+// --------------------------------------------------
 // get user from the database by email
+// --------------------------------------------------
 export const getUserByEmail = async (email: string) => {
   const response = await AxiosInstanceServer.get(
     `users/user_by_email/${email}`
@@ -99,6 +108,10 @@ export const getUserByEmail = async (email: string) => {
   return response.data;
 };
 
+
+// --------------------------------------------------
+// get token by email
+// --------------------------------------------------
 export const getTokenByEmail = async (email: string) => {
   const response = await Axiosinstance.get(`users/token/${email}`);
   return response.data;

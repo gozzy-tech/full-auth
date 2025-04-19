@@ -2,7 +2,9 @@ import { loginSchema, UserCreateSchema } from "@/schemas";
 import { z } from "zod";
 import { Axiosinstance, AxiosinstanceAuth } from "./instance";
 
+// -------------------------------------------------
 // This function is used to register a new user
+// -------------------------------------------------
 export const useRegister = async (data: z.infer<typeof UserCreateSchema>) => {
   const { confirmPassword, ...rest } = data;
   try {
@@ -19,7 +21,9 @@ export const useRegister = async (data: z.infer<typeof UserCreateSchema>) => {
   }
 };
 
+// -------------------------------------------------
 // This function is used to login a user
+// -------------------------------------------------
 export const useLogin = async (data: z.infer<typeof loginSchema>) => {
   try {
     const response = await Axiosinstance.post("/auth/login", data);
@@ -35,7 +39,9 @@ export const useLogin = async (data: z.infer<typeof loginSchema>) => {
   }
 };
 
+// -------------------------------------------------
 // This function is used to logout a user
+// -------------------------------------------------
 export const useLogout = async () => {
   try {
     const response = await AxiosinstanceAuth.get("/auth/logout");
@@ -51,7 +57,9 @@ export const useLogout = async () => {
   }
 };
 
+// ---------------------------------------------------------
 // This function is used to verify the email token
+// ---------------------------------------------------------
 export const useVerifyEmailToken = async (token: string) => {
   try {
     const response = await Axiosinstance.get(`/auth/verify/${token}`);
@@ -66,6 +74,10 @@ export const useVerifyEmailToken = async (token: string) => {
     };
   }
 };
+
+// ---------------------------------------------------------
+// This function is used to resend the verification email
+// ---------------------------------------------------------
 
 export const useResendVerificationEmail = async (email: string) => {
   try {
@@ -84,6 +96,9 @@ export const useResendVerificationEmail = async (email: string) => {
   }
 };
 
+// ---------------------------------------------------------
+// This function is used to send the forgot password email
+// ---------------------------------------------------------
 export const useForgotPassword = async (email: string) => {
   try {
     const response = await Axiosinstance.post("/auth/password-reset-request", {
@@ -101,6 +116,9 @@ export const useForgotPassword = async (email: string) => {
   }
 };
 
+// -------------------------------------------------
+// This function is used to reset the password
+// -------------------------------------------------
 export const useResetPassword = async (
   token: string,
   password: string,
@@ -126,6 +144,9 @@ export const useResetPassword = async (
   }
 };
 
+// ---------------------------------------------------------------
+// This function is used to reset the password with old password
+// ---------------------------------------------------------------
 export const useResetPasswordWithOldPassword = async (
   old_password: string,
   new_password: string,
@@ -149,6 +170,9 @@ export const useResetPasswordWithOldPassword = async (
   }
 };
 
+// -------------------------------------------------
+// This function is used to enable 2FA
+// -------------------------------------------------
 export const useEnable2FA = async () => {
   try {
     const response = await AxiosinstanceAuth.get("/auth/enable-2FA");
@@ -163,6 +187,10 @@ export const useEnable2FA = async () => {
     };
   }
 };
+
+// -------------------------------------------------
+// This function is used to disable the 2FA
+// -------------------------------------------------
 
 export const useDisable2FA = async () => {
   try {
@@ -179,6 +207,10 @@ export const useDisable2FA = async () => {
   }
 };
 
+// -----------------------------------------------
+// This function is used to verify the 2FA code
+// ------------------------------------------------
+
 export const useVerify2FA = async (code: string) => {
   try {
     const response = await Axiosinstance.get(`/auth/verify-2FA-code/${code}`);
@@ -194,6 +226,9 @@ export const useVerify2FA = async (code: string) => {
   }
 };
 
+// ----------------------------------------------
+// This function is used to resend the 2FA code
+// ----------------------------------------------
 export const useResend2FA = async (email: string) => {
   try {
     const response = await AxiosinstanceAuth.post("/auth/resend-2FA-code", {
