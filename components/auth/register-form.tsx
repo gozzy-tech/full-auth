@@ -27,12 +27,12 @@ import { useState } from "react";
 import { useRegister } from "@/api/auth";
 import { toast } from "sonner";
 import { LoadingSpinner } from "../custom/loading-spinner";
+import { API_URL } from "@/api/constant";
 
 export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  
   const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof UserCreateSchema>>({
     resolver: zodResolver(UserCreateSchema),
@@ -78,7 +78,14 @@ export function RegisterForm({
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
               {/* Google Button */}
               <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open(`${API_URL}/auth/login/google`, "_self");
+                  }}
+                >
                   <FcGoogle />
                   Sign up with Google
                 </Button>

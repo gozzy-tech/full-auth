@@ -9,7 +9,8 @@ const authRoutes = [
   "/verify-email",
   "/forgot-password",
   "/reset-password",
-  "/verify-2FA"
+  "/verify-2FA",
+  "/oauth_success"
 ];
 const publicRoutes = [
   "/",

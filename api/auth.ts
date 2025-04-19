@@ -210,3 +210,22 @@ export const useResend2FA = async (email: string) => {
     };
   }
 };
+
+// --------------------------------------------------
+// This function is used to login a user with Google
+// --------------------------------------------------
+
+export const useGetOauthtoken = async (code: string) => {
+  try {
+    const response = await Axiosinstance.get(`/auth/oauth_token/${code}`);
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Something went wrong.",
+    };
+  }
+};

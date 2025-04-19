@@ -32,6 +32,7 @@ import { useLogin } from "@/api/auth";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { saveToken } from "@/utils/auth";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { API_URL } from "@/api/constant";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -79,6 +80,7 @@ export function LoginForm({
       reset();
 
       if (response?.data?.two_factor_required) {
+
         // -------------------------------------------------------
         // if 2FA is required, redirect to 2FA verification page
         // -------------------------------------------------------
@@ -95,7 +97,7 @@ export function LoginForm({
         setPersistEmail(data.email);
         router.push("/verify-email");
       } else {
-
+        
         // -------------------------------------------------------
         // if login is successful, save the token and redirect to the dashboard or the original page
         // -------------------------------------------------------
@@ -128,7 +130,14 @@ export function LoginForm({
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Button variant="outline" className="w-full flex gap-2">
+              <Button
+                variant="outline"
+                className="w-full flex gap-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open(`${API_URL}/auth/login/google`, "_self");
+                }}
+              >
                 <FcGoogle />
                 Login with Google
               </Button>
