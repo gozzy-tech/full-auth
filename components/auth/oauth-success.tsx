@@ -51,10 +51,10 @@ const OauthSuccess = () => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96">
+      <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96 space-y-2">
         <CgSpinner className="animate-spin" size={40} />
         <h4 className="text-2xl font-bold">Logging in...</h4>
-        <p className="mt-2 text-gray-600">Please wait while we log you in.</p>
+        <p className=" text-gray-600">Please wait while we log you in.</p>
       </div>
     </div>
   );
