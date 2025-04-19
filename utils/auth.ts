@@ -63,6 +63,12 @@ export const getUserId = (): string | null => {
 // Save token to cookies
 export const saveToken = (data: TokenType) => {
   const { access_token, refresh_token, user } = data;
+  const decoded = jwtDecode<{ exp?: number }>(access_token);
+  if (!decoded.exp) {
+    console.warn("Access token is missing expiration claim (exp).");
+    return;
+  }
+  const expirationDate = new Date(decoded.exp * 1000);
   const tokenData = {
     access_token,
     refresh_token,
@@ -73,10 +79,10 @@ export const saveToken = (data: TokenType) => {
   };
 
   Cookies.set(COOKIE_NAME, JSON.stringify(tokenData), {
-    expires: 7, // Cookie expiration in days
+    expires: expirationDate, // use actual expiration
     secure: process.env.NODE_ENV === "production",
     sameSite: "Strict",
-    path: "/", // VERY IMPORTANT: ensures it's sent on all paths
+    path: "/", // ensure cookie is sent on all paths
   });
 };
 

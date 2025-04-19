@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { imageSchema, optionalPhoneSchema, PhoneSchema } from "./custom-validation";
 
 export const RoleEnum = z.enum(["admin", "user"]);
 
@@ -84,13 +85,13 @@ export const UserUpdateSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   email: z.string().email(),
-  phone: z.string().optional().nullable(),
-  address: z.string().optional().nullable(),
-  state: z.string().optional().nullable(),
-  country: z.string().optional().nullable(),
-  avatar: z.string().url().optional().nullable(),
-  bio: z.string().optional().nullable(),
-  gender: z.string().optional().nullable(),
+  phone: optionalPhoneSchema,
+  address: z.string().optional(),
+  state: z.string().optional(),
+  country: z.string().optional(),
+  avatar: imageSchema,
+  bio: z.string().optional(),
+  gender: z.string().optional(),
 });
 
 export type UserUpdateType = z.infer<typeof UserUpdateSchema>;

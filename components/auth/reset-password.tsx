@@ -24,6 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { resetPasswordSchema } from "@/schemas";
+import { useState } from "react";
+import { useResetPassword } from "@/api/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { LoadingSpinner } from "../custom/loading-spinner";
 
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
@@ -31,6 +36,10 @@ export function ResetPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [submitting, setSubmitting] = useState(false);
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const router = useRouter();
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -39,9 +48,29 @@ export function ResetPasswordForm({
     },
   });
 
-  const onSubmit = (values: ResetPasswordFormValues) => {
+  const { reset } = form;
+
+  const onSubmit = async (values: ResetPasswordFormValues) => {
     console.log("Reset Password:", values);
-    // API call to reset password goes here
+    if (!token) {
+      toast.error("Token does not exist");
+      return;
+    }
+    setSubmitting(true);
+    const response = await useResetPassword(
+      token,
+      values.password,
+      values.confirmPassword
+    );
+    if (response?.status >= 200 && response?.status < 300) {
+      toast.success(response?.data?.message || "Password reset successfully!");
+      reset();
+      router.push("/login");
+    } else {
+      toast.error(response?.message || "Failed to reset password.");
+    }
+
+    setSubmitting(false);
   };
 
   return (
@@ -92,8 +121,12 @@ export function ResetPasswordForm({
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Confirm & Reset Password
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <LoadingSpinner message="resetting..." />
+                ) : (
+                  "Reset Password"
+                )}
               </Button>
 
               <div className="text-center text-sm">

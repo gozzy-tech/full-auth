@@ -1,6 +1,6 @@
 import { loginSchema, UserCreateSchema } from "@/schemas";
 import { z } from "zod";
-import { Axiosinstance } from "./instance";
+import { Axiosinstance, AxiosinstanceAuth } from "./instance";
 
 // This function is used to register a new user
 export const useRegister = async (data: z.infer<typeof UserCreateSchema>) => {
@@ -38,7 +38,7 @@ export const useLogin = async (data: z.infer<typeof loginSchema>) => {
 // This function is used to logout a user
 export const useLogout = async () => {
   try {
-    const response = await Axiosinstance.post("/auth/logout");
+    const response = await AxiosinstanceAuth.get("/auth/logout");
     return {
       status: response.status,
       data: response.data,
@@ -107,10 +107,13 @@ export const useResetPassword = async (
   confirmPassword: string
 ) => {
   try {
-    const response = await Axiosinstance.post(`/auth/password-reset/${token}`, {
-      password,
-      confirmPassword,
-    });
+    const response = await Axiosinstance.post(
+      `/auth/password-reset-confirm/${token}`,
+      {
+        new_password: password,
+        confirm_new_password: confirmPassword,
+      }
+    );
     return {
       status: response.status,
       data: response.data,
@@ -125,7 +128,7 @@ export const useResetPassword = async (
 
 export const useEnable2FA = async () => {
   try {
-    const response = await Axiosinstance.get("/auth/enable-2FA");
+    const response = await AxiosinstanceAuth.get("/auth/enable-2FA");
     return {
       status: response.status,
       data: response.data,
@@ -140,7 +143,7 @@ export const useEnable2FA = async () => {
 
 export const useDisable2FA = async () => {
   try {
-    const response = await Axiosinstance.get("/auth/disable-2FA");
+    const response = await AxiosinstanceAuth.get("/auth/disable-2FA");
     return {
       status: response.status,
       data: response.data,

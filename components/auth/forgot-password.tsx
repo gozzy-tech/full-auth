@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +23,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { forgotPasswordSchema } from "@/schemas";
+import { useState } from "react";
+import { useForgotPassword } from "@/api/auth";
+import { toast } from "sonner";
+import { LoadingSpinner } from "../custom/loading-spinner";
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
@@ -31,6 +34,7 @@ export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [submitting, setSubmitting] = useState(false);
   const form = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -38,9 +42,19 @@ export function ForgotPasswordForm({
     },
   });
 
-  const onSubmit = (values: ForgotPasswordFormValues) => {
-    console.log("Forgot Password Email:", values.email);
-    // 🔗 call your API to send reset link here
+  const { reset } = form;
+
+  const onSubmit = async (values: ForgotPasswordFormValues) => {
+    setSubmitting(true);
+    const response = await useForgotPassword(values.email);
+    if (response?.status >= 200 && response?.status < 300) {
+      toast.success(response?.data?.message || "Reset link sent successfully!");
+      reset();
+    } else {
+      toast.error(response?.message || "Failed to send reset link.");
+    }
+
+    setSubmitting(false);
   };
 
   return (
@@ -73,8 +87,12 @@ export function ForgotPasswordForm({
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Send Reset Link
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <LoadingSpinner message="sending..." />
+                ) : (
+                  "Send Reset Link"
+                )}
               </Button>
 
               <div className="text-center text-sm">

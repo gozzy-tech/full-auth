@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { verify2FASchema } from "@/schemas";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 type verify2FAFormValues = z.infer<typeof verify2FASchema>;
 
@@ -31,6 +32,10 @@ export function Verify2FAForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const { storedValue, setValue } = useLocalStorage<string | null>(
+        "persistRedirect",
+        null
+      );
   const form = useForm<verify2FAFormValues>({
     resolver: zodResolver(verify2FASchema),
     defaultValues: {

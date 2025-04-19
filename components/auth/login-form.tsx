@@ -25,12 +25,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/schemas";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoadingSpinner } from "../custom/loading-spinner";
 import { toast } from "sonner";
 import { useLogin } from "@/api/auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { saveToken } from "@/utils/auth";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -38,6 +39,13 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+  const pathname = usePathname();
+  const { storedValue, setValue } = useLocalStorage<string | null>(
+    "persistRedirect",
+    null
+  );
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const form = useForm<LoginFormValues>({
@@ -50,6 +58,13 @@ export function LoginForm({
 
   const { reset } = form;
 
+  // persist the Redirect URL in local storage
+  useEffect(() => {
+    if (redirect) {
+      setValue(redirect);
+    }
+  }, [redirect]);
+
   const onSubmit = async (data: LoginFormValues) => {
     console.log("Login Data:", data);
     setSubmitting(true);
@@ -61,7 +76,17 @@ export function LoginForm({
         router.push("/verify-2FA");
       } else {
         saveToken(response?.data);
-        router.push("/dashboard");
+        if (redirect) {
+          const redirectUrl = storedValue || redirect;
+          setValue(null);
+          if (pathname === redirectUrl) {
+            window.location.reload();
+          } else {
+            router.push(redirectUrl);
+          }
+        } else {
+          router.push("/dashboard");
+        }
       }
     } else {
       toast.error(response?.message || "Login failed.");
