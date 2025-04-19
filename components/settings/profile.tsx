@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -22,7 +22,7 @@ import { LoadingSpinner } from "../custom/loading-spinner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { UserUpdateSchema } from "@/schemas";
+import { UserUpdateSchema, UserUpdateType } from "@/schemas";
 import {
   Select,
   SelectContent,
@@ -32,11 +32,15 @@ import {
 } from "../ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "../custom/imageuploader";
+import { useGetUserProfile, useUpdateUserProfile } from "@/api/user";
+import { toast } from "sonner";
 
 const Profile = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
+  const { data: userProfile } = useGetUserProfile();
+  const { mutateAsync: updateUserProfile } = useUpdateUserProfile();
   const [submitting, setSubmitting] = useState(false);
   const form = useForm<z.infer<typeof UserUpdateSchema>>({
     resolver: zodResolver(UserUpdateSchema),
@@ -56,8 +60,42 @@ const Profile = ({
 
   const { reset } = form;
 
-  const onSubmit = async (data: z.infer<typeof UserUpdateSchema>) => {
-    console.log(data);
+  // Set default values from userProfile data if available
+  useEffect(() => {
+    if (userProfile) {
+      reset({
+        first_name: userProfile.first_name || "",
+        last_name: userProfile.last_name || "",
+        gender: userProfile.gender || "",
+        bio: userProfile.bio || "",
+        email: userProfile.email || "",
+        phone: userProfile.phone || "",
+        address: userProfile.address || "",
+        state: userProfile.state || "",
+        country: userProfile.country || "",
+        avatar: userProfile.avatar || "",
+      });
+    }
+  }, [userProfile, reset]);
+
+  const onSubmit = async (data: Partial<UserUpdateType>) => {
+    setSubmitting(true);
+    try {
+      // remove email field if it's unchanged
+      if (data.email === userProfile?.email) {
+        delete data.email;
+      }
+      const response = await updateUserProfile(data);
+      if (response) {
+        reset(response?.user);
+        toast.success("Profile updated successfully");
+      }
+    } catch (error) {
+      toast.error("Error updating profile. Please try again.");
+      console.error("Error updating profile:", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -72,7 +110,6 @@ const Profile = ({
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-
               <div>
                 {/* Avatar */}
                 <FormField
@@ -82,7 +119,10 @@ const Profile = ({
                     <FormItem className="flex flex-col gap-2">
                       <FormLabel>Avatar</FormLabel>
                       <FormControl>
-                        <ImageUploader value={field.value} onChange={field.onChange} />
+                        <ImageUploader
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -153,28 +193,16 @@ const Profile = ({
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {/* Gender */}
+                {/* State */}
                 <FormField
                   control={form.control}
-                  name="gender"
+                  name="state"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Gender</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select your gender" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>State</FormLabel>
+                      <FormControl>
+                        <Input placeholder="enter your state" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -212,16 +240,28 @@ const Profile = ({
                   )}
                 />
 
-                {/* State */}
+                {/* Gender */}
                 <FormField
                   control={form.control}
-                  name="state"
+                  name="gender"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <FormControl>
-                        <Input placeholder="enter your state" {...field} />
-                      </FormControl>
+                      <FormLabel>Gender</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select your gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -47,6 +47,9 @@ export function RegisterForm({
 
   const { reset } = form;
 
+  // -----------------------------------------------------
+  // onSubmit function to handle form submission
+  // -----------------------------------------------------
   const onSubmit = async (data: z.infer<typeof UserCreateSchema>) => {
     console.log(data);
     setSubmitting(true);

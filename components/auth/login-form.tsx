@@ -46,6 +46,10 @@ export function LoginForm({
     "persistRedirect",
     null
   );
+  const { setValue: setPersistEmail } = useLocalStorage<string | null>(
+    "persistEmail",
+    null
+  );
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const form = useForm<LoginFormValues>({
@@ -69,12 +73,32 @@ export function LoginForm({
     console.log("Login Data:", data);
     setSubmitting(true);
     const response = await useLogin(data);
+
     if (response?.status >= 200 && response?.status < 300) {
       toast.success(response?.data?.message || "Login successful!");
       reset();
+
       if (response?.data?.two_factor_required) {
+        // -------------------------------------------------------
+        // if 2FA is required, redirect to 2FA verification page
+        // -------------------------------------------------------
+        setPersistEmail(data.email);
         router.push("/verify-2FA");
+      } else if (response?.data?.verification_needed) {
+
+        // -------------------------------------------------------
+        // if email verification is needed, redirect to email verification page
+        // -------------------------------------------------------
+        toast.success(
+          "Email verification required. Please check your inbox, for the verification code"
+        );
+        setPersistEmail(data.email);
+        router.push("/verify-email");
       } else {
+
+        // -------------------------------------------------------
+        // if login is successful, save the token and redirect to the dashboard or the original page
+        // -------------------------------------------------------
         saveToken(response?.data);
         if (redirect) {
           const redirectUrl = storedValue || redirect;

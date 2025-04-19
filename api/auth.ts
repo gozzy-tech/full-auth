@@ -126,6 +126,29 @@ export const useResetPassword = async (
   }
 };
 
+export const useResetPasswordWithOldPassword = async (
+  old_password: string,
+  new_password: string,
+  confirm_new_password: string
+) => {
+  try {
+    const response = await AxiosinstanceAuth.post("/auth/password-reset", {
+      old_password,
+      new_password,
+      confirm_new_password,
+    });
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Something went wrong.",
+    };
+  }
+};
+
 export const useEnable2FA = async () => {
   try {
     const response = await AxiosinstanceAuth.get("/auth/enable-2FA");
@@ -158,7 +181,24 @@ export const useDisable2FA = async () => {
 
 export const useVerify2FA = async (code: string) => {
   try {
-    const response = await Axiosinstance.post("/auth/verify-2FA", { code });
+    const response = await Axiosinstance.get(`/auth/verify-2FA-code/${code}`);
+    return {
+      status: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response?.status || 500,
+      message: error.response?.data?.message || "Something went wrong.",
+    };
+  }
+};
+
+export const useResend2FA = async (email: string) => {
+  try {
+    const response = await AxiosinstanceAuth.post("/auth/resend-2FA-code", {
+      email,
+    });
     return {
       status: response.status,
       data: response.data,

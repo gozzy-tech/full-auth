@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { imageSchema, optionalPhoneSchema, PhoneSchema } from "./custom-validation";
+import {
+  imageSchema,
+  optionalPhoneSchema,
+  PhoneSchema,
+} from "./custom-validation";
 
 export const RoleEnum = z.enum(["admin", "user"]);
 
@@ -15,7 +19,6 @@ export const UserCreateSchema = z
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });
-  
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -26,12 +29,11 @@ export const EmailModelSchema = z.object({
   addresses: z.array(z.string().email()),
 });
 
-
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email"),
 });
 
-export const verify2FASchema = z.object({
+export const verifyCodeSchema = z.object({
   code: z.string().min(6, "Enter a valid code"),
 });
 
@@ -46,6 +48,22 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+// resetPasswordWithOldPasswordSchema
+export const resetPasswordWithOldPasswordSchema = z
+  .object({
+    old_password: z.string().min(6, "Old password is required"),
+    new_password: z.string().min(6, "New password is required"),
+    confirm_new_password: z.string(),
+  })
+  .refine((data) => data.new_password === data.confirm_new_password, {
+    message: "Passwords do not match",
+    path: ["confirm_new_password"],
+  });
+
+export type resetPasswordWithOldPasswordType = z.infer<
+  typeof resetPasswordWithOldPasswordSchema
+>;
+
 export const UserResponseSchema = z.object({
   id: z.string().uuid(),
   first_name: z.string(),
@@ -58,7 +76,6 @@ export const UserResponseSchema = z.object({
 });
 
 export type UserResponseType = z.infer<typeof UserResponseSchema>;
-
 
 export const UserSchema = z.object({
   id: z.string().uuid(),
@@ -79,7 +96,7 @@ export const UserSchema = z.object({
   created_at: z.string().datetime(),
 });
 
-export type UserType = z.infer<typeof UserSchema>
+export type UserType = z.infer<typeof UserSchema>;
 
 export const UserUpdateSchema = z.object({
   first_name: z.string(),

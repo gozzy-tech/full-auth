@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { AxiosinstanceAuth } from "./instance";
+import { UserUpdateType } from "@/schemas";
 
 // get the user profile
 export const useGetUserProfile = () => {
@@ -13,8 +14,8 @@ export const useGetUserProfile = () => {
 export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    async (data: any) => {
-      const response = await AxiosinstanceAuth.put("/user/profile", data);
+    async (data: Partial<UserUpdateType>) => {
+      const response = await AxiosinstanceAuth.put("/user/update-user", data);
       return response.data;
     },
     {
