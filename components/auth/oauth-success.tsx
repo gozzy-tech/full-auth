@@ -15,6 +15,10 @@ const OauthSuccess = () => {
     string | null
   >("persistRedirect", null);
   const pathname = usePathname();
+  const { setValue: setPersistEmail } = useLocalStorage<string | null>(
+    "persistEmail",
+    null
+  );
 
   const router = useRouter();
 
@@ -25,18 +29,29 @@ const OauthSuccess = () => {
 
     const createOauthUserToken = async () => {
       const response = await useGetOauthtoken(code);
-      if (response.status === 200) {
+
+      if (response?.status >= 200 && response?.status < 300) {
         toast.success(response?.data?.message || "Login successful!");
-        saveToken(response?.data);
-        if (persistRedirect) {
-          setValue(null);
-          if (pathname === persistRedirect) {
-            window.location.reload();
-          } else {
-            router.push(persistRedirect);
-          }
+
+        // Check if user has 2FA enabled
+        if (response?.data?.two_factor_required) {
+          const email = response?.data?.user?.email;
+          setPersistEmail(email);
+          router.push("/verify-2FA");
         } else {
-          router.push("/dashboard");
+          // User is without 2FA
+          saveToken(response?.data);
+
+          if (persistRedirect) {
+            setValue(null);
+            if (pathname === persistRedirect) {
+              window.location.reload();
+            } else {
+              router.push(persistRedirect);
+            }
+          } else {
+            router.push("/dashboard");
+          }
         }
       } else {
         toast.error("Login failed. Please try again.");
@@ -53,7 +68,7 @@ const OauthSuccess = () => {
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96 space-y-2">
         <CgSpinner className="animate-spin" size={40} />
-        <h4 className="text-2xl font-bold">Logging in...</h4>
+        <h4 className="text-2xl font-bold">Completing Setup</h4>
         <p className=" text-gray-600">Please wait while we log you in.</p>
       </div>
     </div>
