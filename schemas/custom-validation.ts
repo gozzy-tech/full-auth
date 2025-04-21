@@ -9,16 +9,13 @@ export const optionalEmailSchema = z
   });
 
 // Reusable optional URL schema
-export const optionalUrlSchema = z
-  .string()
-  .optional()
-  .refine(
-    (value) =>
-      !value || /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-]*)*\/?$/.test(value),
-    { message: "Invalid URL." }
-  );
+export const optionalUrlSchema = z.union([
+  z.string().url({ message: "Invalid URL." }),
+  z.literal(""),
+  z.undefined(),
+]);
 
-// Custom validation function
+// Custom image validation function
 export const imageSchema = z.union([
   optionalUrlSchema,
   z.instanceof(File, { message: "Invalid file type" }), // Allowing File upload

@@ -65,10 +65,12 @@ const OauthSuccess = () => {
   }, [code, router]);
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96 space-y-2">
-        <CgSpinner className="animate-spin" size={40} />
-        <h4 className="text-2xl font-bold">Completing Setup</h4>
+    <div className="flex items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center p-4 bg-white rounded shadow-md w-96 space-y-4">
+        <div className="flex flex-col items-center justify-center">
+          <CgSpinner className="animate-spin" size={40} />
+          <h4 className="text-xl font-bold mt-2">Completing Setup</h4>
+        </div>
         <p className=" text-gray-600">Please wait while we log you in.</p>
       </div>
     </div>
